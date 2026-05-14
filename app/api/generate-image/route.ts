@@ -11,7 +11,7 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MODEL = "gpt-image-1";
+const MODEL = "gpt-image-2";
 
 const slotInputSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("hero") }),
