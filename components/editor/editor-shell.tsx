@@ -280,7 +280,7 @@ export function EditorShell({ templateName }: EditorShellProps) {
     const generateOne = async (p: PlannedSlot) => {
       setSlotStatuses((prev) => ({ ...prev, [p.id]: "generating" }));
       const promptInfo = promptForSlot(p.slot, ctx);
-      const quality = "high";
+      const quality = "low";
       try {
         const cached = await getCachedImage(
           promptInfo.prompt,
@@ -368,7 +368,7 @@ export function EditorShell({ templateName }: EditorShellProps) {
         const cached = await getCachedImage(
           promptInfo.prompt,
           promptInfo.size,
-          "high"
+          "low"
         );
         if (cached) restored[p.targetPath] = cached;
       }
@@ -508,7 +508,7 @@ export function EditorShell({ templateName }: EditorShellProps) {
             title={
               !aiOutput
                 ? "Estruture a copy primeiro"
-                : "Gera as imagens IA via OpenAI (~$2 em créditos por listicle)"
+                : "Gera as imagens IA via OpenAI (~$0.10 em créditos por listicle)"
             }
           >
             {imagesLoading

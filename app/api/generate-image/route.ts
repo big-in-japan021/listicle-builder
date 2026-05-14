@@ -31,7 +31,7 @@ const requestSchema = z.object({
     product_category: z.string().min(1),
     customer_description: z.string().min(1),
   }),
-  quality: z.enum(["low", "medium", "high"]).default("high"),
+  quality: z.enum(["low", "medium", "high"]).default("low"),
 });
 
 export async function POST(request: Request) {
