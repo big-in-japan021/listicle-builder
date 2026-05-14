@@ -74,7 +74,7 @@ export const fillListicleSpecTool = {
           summary_html: {
             type: "string",
             description:
-              'Resumo curto (1-2 parágrafos <p>) que abre a página. Começa com <span class="label">Resumo</span>: (ou "Summary" / "Resumen" conforme idioma). Use <strong>...</strong> pra destaque.',
+              'Resumo curto (1-2 parágrafos <p>) que abre a página. Começa com <span class="label">Resumo</span>: (ou "Summary" / "Resumen" conforme idioma). Use <strong>...</strong> pra destaque. PRESERVA quebras simples do texto original como <br> dentro do mesmo <p> (não consolida frases que o user separou em linhas).',
           },
           author_name: {
             type: "string",
@@ -105,7 +105,7 @@ export const fillListicleSpecTool = {
             text_html: {
               type: "string",
               description:
-                "1 a 3 parágrafos <p>...</p>. CADA parágrafo deve estar dentro de seu próprio <p>. Use <strong> e <span class=\"highlight\"> com moderação.",
+                "Texto descritivo do item em HTML. **PRESERVE A ESTRUTURA DE QUEBRAS DO TEXTO ORIGINAL:** linha em branco → <p>s separados; Enter simples sem linha em branco → <br> dentro do mesmo <p>. NÃO consolide múltiplas frases curtas num único parágrafo se elas estavam em linhas separadas. Use <strong> e <span class=\"highlight\"> com moderação.",
             },
             emoji_list: {
               type: "array",
@@ -212,12 +212,13 @@ REGRAS RÍGIDAS:
 2. **Sem invenção de fatos:** se a copy não traz uma informação, não invente. Pode parafrasear o que está lá. Para prova social, autor e disclaimer (que não vêm na copy bruta) você pode sugerir algo plausível e genérico.
 
 3. **HTML correto — CRÍTICO:** os campos *_html devem ser HTML válido. Use:
-   - <p>...</p> em CADA parágrafo dos campos summary_html e text_html (quebra de linha não basta; o que não tiver <p> vira bloco único)
+   - <p>...</p> em CADA bloco do texto. Considera-se bloco TUDO QUE ESTIVER SEPARADO POR LINHA EM BRANCO no texto original. NÃO junte vários blocos num único <p>.
+   - <br> **DENTRO** de um <p> pra cada quebra de linha simples (Enter sem deixar linha em branco) que o usuário fez. É CRÍTICO preservar a cadência visual do texto original — se o usuário escreveu 3 frases curtas em linhas separadas (sem linha em branco entre elas), ELAS DEVEM VIRAR \`<p>Frase 1.<br>Frase 2.<br>Frase 3.</p>\`. **NUNCA** transforme isso em \`<p>Frase 1. Frase 2. Frase 3.</p>\` — você perde o ritmo.
    - <strong>...</strong> pra negrito de ênfase
    - <span class="highlight">palavra</span> pra palavra-chave em destaque visual (laranja-lima). Use SOMENTE em 1 a 3 palavras-chave por bloco. Nada de <span class="highlight"> em frase inteira.
    - <span class="label">Resumo</span> (ou "Summary"/"Resumen") só no INÍCIO do summary_html.
-   - Não use <h1>, <h2>, <div>, <br>, <ul>, ou classes/atributos diferentes dos listados acima.
-   - Não use \\n cru: troque por parágrafos <p>.
+   - Não use <h1>, <h2>, <div>, <ul>, ou classes/atributos diferentes dos listados acima.
+   - **REGRA DE QUEBRA:** linha em branco no original → \`</p><p>\`. Enter sem linha em branco → \`<br>\`. Texto contínuo sem quebra → não adicione nada.
 
 4. **list_items:** ENTRE 6 e 10 itens. Cada item distribui um pedaço/argumento da copy bruta. Mantém o tom (urgência, intimidade, dados numéricos) do original. Se a copy tem 4 argumentos, complemente com 2-3 derivados (sem inventar fatos novos — derive variações de ângulo dos argumentos existentes).
 
