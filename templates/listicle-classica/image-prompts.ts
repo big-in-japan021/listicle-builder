@@ -67,8 +67,17 @@ export function authorPhotoPrompt(
 // ─── ITEM DA LISTICLE ────────────────────────────────────────────────
 export function listItemImagePrompt(
   ctx: ImageContext,
-  titleHtml: string
+  titleHtml: string,
+  /** Prompt específico desse item (vindo da Claude). Se vazio, cai no fallback genérico. */
+  imagePrompt?: string
 ): ImagePromptResult {
+  if (imagePrompt && imagePrompt.trim().length > 0) {
+    return {
+      prompt: STYLE_PREFIX + imagePrompt.trim() + NEGATIVE,
+      size: "1536x1024",
+    };
+  }
+  // Fallback genérico (pra aiOutput antigos sem image_prompt por item).
   const titleText = stripHtml(titleHtml);
   return {
     prompt:
@@ -123,7 +132,12 @@ export function beforeAfterImagePrompt(ctx: ImageContext): ImagePromptResult {
 export type ImageSlot =
   | { kind: "hero" }
   | { kind: "author"; name: string }
-  | { kind: "list_item"; index: number; title_html: string }
+  | {
+      kind: "list_item";
+      index: number;
+      title_html: string;
+      image_prompt?: string;
+    }
   | { kind: "review"; index: number; name: string }
   | { kind: "before_after" };
 
@@ -137,7 +151,7 @@ export function promptForSlot(
     case "author":
       return authorPhotoPrompt(ctx, slot.name);
     case "list_item":
-      return listItemImagePrompt(ctx, slot.title_html);
+      return listItemImagePrompt(ctx, slot.title_html, slot.image_prompt);
     case "review":
       return reviewPhotoPrompt(ctx, slot.name);
     case "before_after":

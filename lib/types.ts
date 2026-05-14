@@ -8,6 +8,8 @@ export type ListItemSpec = {
   image?: string;
   text_html?: string;
   emoji_list?: string[];
+  /** Prompt em inglês pra gerar a imagem desse item via gpt-image-2 (preenchido pela Claude). */
+  image_prompt?: string;
 };
 
 export type AuthorSpec = {

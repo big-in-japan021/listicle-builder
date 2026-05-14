@@ -122,6 +122,7 @@ export function buildSpec(input: EditorInput, ai: AiOutput): Spec {
       image: "", // sprint 5 gera
       text_html: it.text_html,
       emoji_list: it.emoji_list,
+      image_prompt: it.image_prompt,
     })),
     offer_1: {
       title_html: s.offer_1_title,

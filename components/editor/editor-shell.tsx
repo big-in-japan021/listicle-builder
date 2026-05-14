@@ -276,61 +276,80 @@ export function EditorShell({ templateName }: EditorShellProps) {
       Object.fromEntries(plan.map((p) => [p.id, "pending" as SlotStatus]))
     );
 
-    const limit = pLimit(4);
+    const limit = pLimit(2);
+    const failures: Array<{ id: string; error: string }> = [];
+
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
     const generateOne = async (p: PlannedSlot) => {
       setSlotStatuses((prev) => ({ ...prev, [p.id]: "generating" }));
       const promptInfo = promptForSlot(p.slot, ctx);
       const quality = "low";
-      try {
-        const cached = await getCachedImage(
-          promptInfo.prompt,
-          promptInfo.size,
-          quality
-        );
-        if (cached) {
-          setImagesMap((prev) => ({ ...prev, [p.targetPath]: cached }));
-          setSlotStatuses((prev) => ({ ...prev, [p.id]: "done" }));
-          return;
-        }
-        const res = await fetch("/api/generate-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ slot: p.slot, context: ctx, quality }),
-        });
-        const body = await safeReadJson<{
-          image_b64?: string;
-          error?: string;
-        }>(res);
-        if (!res.ok || !body.image_b64) {
-          console.warn(`Slot ${p.id} falhou:`, body.error);
-          setSlotStatuses((prev) => ({ ...prev, [p.id]: "error" }));
-          return;
-        }
-        await setCachedImage(
-          promptInfo.prompt,
-          promptInfo.size,
-          quality,
-          body.image_b64
-        );
-        setImagesMap((prev) => ({ ...prev, [p.targetPath]: body.image_b64! }));
+
+      // Cache primeiro (rápido, antes de qualquer retry).
+      const cached = await getCachedImage(
+        promptInfo.prompt,
+        promptInfo.size,
+        quality
+      );
+      if (cached) {
+        setImagesMap((prev) => ({ ...prev, [p.targetPath]: cached }));
         setSlotStatuses((prev) => ({ ...prev, [p.id]: "done" }));
-      } catch (err) {
-        console.warn(`Slot ${p.id} erro:`, err);
-        setSlotStatuses((prev) => ({ ...prev, [p.id]: "error" }));
+        return;
       }
+
+      const MAX_ATTEMPTS = 3;
+      let lastError = "desconhecido";
+      for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+        try {
+          const res = await fetch("/api/generate-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ slot: p.slot, context: ctx, quality }),
+          });
+          const body = await safeReadJson<{
+            image_b64?: string;
+            error?: string;
+          }>(res);
+          if (res.ok && body.image_b64) {
+            await setCachedImage(
+              promptInfo.prompt,
+              promptInfo.size,
+              quality,
+              body.image_b64
+            );
+            setImagesMap((prev) => ({ ...prev, [p.targetPath]: body.image_b64! }));
+            setSlotStatuses((prev) => ({ ...prev, [p.id]: "done" }));
+            return;
+          }
+          lastError = body.error ?? `HTTP ${res.status}`;
+          console.warn(`Slot ${p.id} tentativa ${attempt} falhou:`, lastError);
+        } catch (err) {
+          lastError = err instanceof Error ? err.message : String(err);
+          console.warn(`Slot ${p.id} tentativa ${attempt} erro:`, lastError);
+        }
+        if (attempt < MAX_ATTEMPTS) {
+          // backoff 2s, 4s
+          await sleep(2000 * attempt);
+        }
+      }
+      failures.push({ id: p.id, error: lastError });
+      setSlotStatuses((prev) => ({ ...prev, [p.id]: "error" }));
     };
 
     await Promise.all(plan.map((p) => limit(() => generateOne(p))));
     setImagesLoading(false);
-    const failed = Object.values(slotStatuses).filter((s) => s === "error").length;
-    if (failed > 0) {
+
+    if (failures.length > 0) {
+      const failedIds = failures.map((f) => f.id).join(", ");
       toast.error(
-        `${plan.length - failed}/${plan.length} imagens prontas — ${failed} falharam.`
+        `${plan.length - failures.length}/${plan.length} imagens prontas. Falharam: ${failedIds}. Clica de novo em "Gerar imagens" pra tentar essas.`,
+        { duration: 12000 }
       );
     } else {
       toast.success(`${plan.length} imagens prontas.`);
     }
-  }, [aiOutput, input, slotStatuses]);
+  }, [aiOutput, input]);
 
   // Debounce: a cada mudança em imagesMap, refazer o preview com as novas imagens.
   useEffect(() => {

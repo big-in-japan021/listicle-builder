@@ -38,7 +38,12 @@ export function planSlotsForSpec(spec: Spec): PlannedSlot[] {
     if (item.image) return;
     plan.push({
       id: `list_item_${i}`,
-      slot: { kind: "list_item", index: i, title_html: item.title_html ?? "" },
+      slot: {
+        kind: "list_item",
+        index: i,
+        title_html: item.title_html ?? "",
+        image_prompt: item.image_prompt,
+      },
       targetPath: `list_items.${i}.image`,
     });
   });

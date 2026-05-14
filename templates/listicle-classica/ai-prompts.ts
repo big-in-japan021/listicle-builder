@@ -18,6 +18,7 @@ export type AiOutput = {
     title_html: string;
     text_html: string;
     emoji_list?: string[];
+    image_prompt: string;
   }>;
   timeline: {
     title: string;
@@ -112,8 +113,13 @@ export const fillListicleSpecTool = {
               description:
                 'Opcional. Use somente quando o item naturalmente pede uma lista de bullets (ex: "depois de 7 dias os usuários relatam: X, Y, Z"). 3 a 5 strings, cada uma começando com emoji.',
             },
+            image_prompt: {
+              type: "string",
+              description:
+                "Prompt EM INGLÊS (sempre) descrevendo a imagem ideal pra ilustrar ESSE item específico. Adapte ao conteúdo do item — se for sobre benefício físico use lifestyle/pessoa; se for sobre garantia use trust badge / seal; se for sobre ingredientes naturais use close-up de ingredientes; se for sobre prova social use grupo de pessoas felizes; etc. 20-40 palavras, descritivo e visual. NÃO inclua estilo (lighting, photorealistic, etc) — isso é injetado depois. Foque no SUJEITO e CENA.",
+            },
           },
-          required: ["number", "title_html", "text_html"],
+          required: ["number", "title_html", "text_html", "image_prompt"],
         },
       },
       timeline: {
@@ -223,6 +229,15 @@ REGRAS RÍGIDAS:
 
 8. **footer.disclaimer:** texto legal genérico apropriado pra categoria. Se for um suplemento/health, mencione não-avaliação pela autoridade local (Anvisa pra PT, FDA pra EN). Sem links.
 
-9. **target_customer e product_category:** sempre EM INGLÊS, mesmo se a copy for em PT/ES. Esses campos não aparecem na página renderizada — eles servem só pra alimentar prompts de imagem de outra IA (gpt-image-1) que produz melhor em inglês. Descreva o público-alvo de forma específica e visual (ex: "Brazilian woman, 35-55, natural skin tone, candid expression").
+9. **target_customer e product_category:** sempre EM INGLÊS, mesmo se a copy for em PT/ES. Esses campos não aparecem na página renderizada — eles servem só pra alimentar prompts de imagem de outra IA (gpt-image-2) que produz melhor em inglês. Descreva o público-alvo de forma específica e visual (ex: "Brazilian woman, 35-55, natural skin tone, candid expression").
+
+10. **list_items[].image_prompt:** sempre EM INGLÊS. Descreva o SUJEITO e a CENA da imagem ideal pra ilustrar AQUELE item específico. Não force "person matching the demographic" em todo item — varia com o conteúdo:
+    - Item sobre benefício físico/transformação → use lifestyle photo da customer demographic
+    - Item sobre garantia/refund → "premium gold seal / trust badge / certificate of authenticity"
+    - Item sobre ingredientes/natural → "close-up of botanical ingredients on wooden surface"
+    - Item sobre prova social/reviews → "diverse group of happy customers / 5-star rating cards"
+    - Item sobre energia/sono → cena lifestyle correspondente (alarm clock, morning routine, etc.)
+    - Item sobre antes/depois → side-by-side composition
+    Foque em SUJEITO e CENA. NÃO inclua "photorealistic", "natural lighting" — esses estilos são injetados pelo sistema antes de mandar pra IA de imagem. 20-40 palavras por prompt.
 
 DEVOLVA SEMPRE via tool call \`fill_listicle_spec\`. Não responda em texto direto.`;

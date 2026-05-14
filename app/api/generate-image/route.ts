@@ -20,6 +20,7 @@ const slotInputSchema = z.discriminatedUnion("kind", [
     kind: z.literal("list_item"),
     index: z.number(),
     title_html: z.string(),
+    image_prompt: z.string().optional(),
   }),
   z.object({ kind: z.literal("review"), index: z.number(), name: z.string() }),
   z.object({ kind: z.literal("before_after") }),
