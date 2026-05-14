@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Listicle Landing Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --orange: #AADD00;
+    --orange-light: #AADD00;
+    --orange-btn: #AADD00;
+    --yellow: #F5C518;
+    --green: #AADD00;
+    --green-dark: #8ABF00;
+    --red: #CC2200;
+    --black: #111111;
+    --gray: #666666;
+    --gray-light: #f5f5f5;
+    --border: #e0e0e0;
+    --white: #ffffff;
+    --font-serif: 'Poppins', sans-serif;
+    --font-body: 'Poppins', sans-serif;
+    --font-sans: 'Poppins', sans-serif;
+  }
+
+  html, body {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--black);
+  }
+
+  img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── SEÇÃO 1: HERO ─── */
+  .hero-image {
+    width: 100%;
+    height: 280px;
+    background: #ccc url('IMAGEM-HERO.jpg') center/cover no-repeat;
+  }
+
+  .hero-body {
+    padding: 16px 16px 0;
+  }
+
+  .hero-stars {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--black);
+    margin-bottom: 10px;
+  }
+
+  .hero-stars .stars {
+    color: var(--yellow);
+    font-size: 18px;
+    letter-spacing: -1px;
+  }
+
+  .hero-title {
+    font-family: var(--font-serif);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.2;
+    color: var(--black);
+    margin-bottom: 14px;
+    /* TROQUE: o texto do título */
+  }
+
+  .hero-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .hero-author-photo {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #ccc url('IMAGEM-AUTOR.jpg') center/cover no-repeat;
+    flex-shrink: 0;
+  }
+
+  .hero-author-info {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.4;
+  }
+
+  .hero-author-info strong {
+    color: var(--black);
+    display: block;
+    font-size: 14px;
+  }
+
+  .hero-summary {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--black);
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    padding-bottom: 20px;
+  }
+
+  .hero-summary .label {
+    font-style: italic;
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  .hero-summary strong {
+    font-weight: 700;
+    text-decoration: underline;
+  }
+
+  /* ─── SEÇÃO 2: LISTICLE ITEMS ─── */
+  .section-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 16px;
+  }
+
+  .list-item {
+    padding: 20px 16px 0;
+  }
+
+  .list-item-title {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--black);
+    margin-bottom: 14px;
+    /* TROQUE: o texto do título */
+  }
+
+  .list-item-title .highlight {
+    color: var(--orange);
+  }
+
+  .list-item-image {
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  .list-item-image img,
+  .list-item-image .img-placeholder {
+    width: 100%;
+    height: 220px;
+    background: #ddd center/cover no-repeat;
+    border-radius: 6px;
+    display: block;
+  }
+
+  /* Badge save */
+  .badge-save {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--orange);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 8px;
+    border-radius: 4px;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .badge-save .x-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #333;
+    color: #fff;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Before/after label inside image */
+  .before-after-labels {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  /* Yes it's possible */
+  .yes-possible {
+    background: var(--yellow);
+    text-align: center;
+    padding: 8px 12px;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--black);
+    border-radius: 0 0 6px 6px;
+    margin-top: -6px;
+  }
+
+  .list-item-text {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--black);
+    padding-bottom: 20px;
+  }
+
+  .list-item-text .highlight {
+    color: var(--orange);
+    font-weight: 600;
+  }
+
+  .list-item-text strong {
+    font-weight: 700;
+  }
+
+  /* Breaking News Banner */
+  .breaking-banner {
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .breaking-banner .banner-bg {
+    background: #1a1a2e center/cover no-repeat;
+    /* TROQUE: background-image: url('imagem-banner.jpg'); */
+    background-image: url('banner-placeholder.jpg');
+    padding: 14px;
+  }
+
+  .breaking-tag-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 10px;
+  }
+
+  .breaking-tag {
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .news-tag {
+    background: #333;
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .breaking-subtitle {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: #ddd;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .breaking-headline {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .breaking-headline .pct {
+    color: var(--orange-light);
+  }
+
+  .breaking-small {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: #ccc;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .breaking-cta {
+    display: block;
+    background: var(--orange-btn);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px 16px;
+    border-radius: 4px;
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  /* Emoji bullets list */
+  .emoji-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+
+  .emoji-list li {
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 2px 0;
+  }
+
+  /* ─── SEÇÃO 3 & 6: BLOCOS DE OFERTA ─── */
+  .offer-block {
+    padding: 32px 16px 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 0 16px 32px;
+  }
+
+  .offer-title {
+    font-family: var(--font-sans);
+    font-size: 26px;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.15;
+    color: var(--black);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    /* TROQUE: o texto */
+  }
+
+  .offer-title .highlight {
+    color: var(--orange);
+  }
+
+  .offer-title.red-title {
+    color: var(--red);
+  }
+
+  .offer-subtitle {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.3;
+    color: var(--black);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+
+  .offer-subtitle .highlight {
+    color: var(--orange);
+  }
+
+  /* Imagem do produto com badges */
+  .product-image-wrap {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .product-stat-bar {
+    background: var(--orange);
+    color: var(--black);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 400;
+    text-align: center;
+    padding: 7px 12px;
+  }
+
+  .product-img {
+    width: 100%;
+    height: 340px;
+    background: #888 url('IMAGEM-PRODUTO.jpg') center/cover no-repeat;
+  }
+
+  /* Badge de desconto sobreposto */
+  .discount-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--orange);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 8px 10px;
+    border-radius: 4px;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .discount-badge .pct {
+    font-size: 18px;
+    font-weight: 900;
+    display: block;
+  }
+
+  /* Badges circulares à direita */
+  .circle-badges {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .circle-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.2;
+    padding: 4px;
+  }
+
+  /* Mini depoimento sobre a imagem */
+  .mini-testimonial {
+    background: rgba(255,255,255,0.95);
+    padding: 8px 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .mini-testimonial-photo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #aaa center/cover no-repeat;
+    flex-shrink: 0;
+    /* TROQUE: background-image: url('foto-depo.jpg'); */
+  }
+
+  .mini-testimonial-text {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: #222;
+    line-height: 1.4;
+  }
+
+  .mini-testimonial-text strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  /* Badges clinicamente estudado */
+  .clinically-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 10px 0 16px;
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+  }
+
+  .clinically-row span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Urgência */
+  .urgency-label {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+    margin-bottom: 12px;
+  }
+
+  .urgency-title {
+    display: block;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.2;
+    color: var(--black);
+    text-transform: uppercase;
+    margin: 0 auto 8px;
+    background: rgba(170, 221, 0, 0.18);
+    border: 1px solid rgba(170, 221, 0, 0.4);
+    border-radius: 20px;
+    padding: 6px 20px;
+    width: fit-content;
+  }
+
+  .urgency-title .highlight {
+    color: var(--black);
+  }
+
+  .urgency-title .highlight {
+    color: var(--orange);
+  }
+
+  .urgency-text {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--gray);
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  /* CTA Button */
+  .cta-btn {
+    display: block;
+    background: var(--orange-btn);
+    color: var(--black);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 800;
+    text-align: center;
+    padding: 16px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    text-decoration: none;
+    cursor: pointer;
+    /* TROQUE: o href para o link do produto */
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(170, 221, 0, 0.7); }
+    50% { transform: scale(1.04); box-shadow: 0 0 0 14px rgba(170, 221, 0, 0); }
+  }
+
+  .cta-btn, .timeline-cta {
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  /* Countdown */
+  .countdown-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 6px;
+    color: var(--black);
+  }
+
+  .countdown-timer {
+    color: var(--red);
+    font-size: 16px;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px;
+  }
+
+  .stock-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--black);
+  }
+
+  .stock-number {
+    color: var(--red);
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  /* Sellout risk bar */
+  .sellout-bar {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .sellout-bar .left {
+    flex: 1;
+    padding: 8px;
+    border-right: 1px solid var(--border);
+    color: var(--black);
+  }
+
+  .sellout-bar .left .risk {
+    color: var(--red);
+    font-weight: 800;
+  }
+
+  .sellout-bar .right {
+    flex: 1;
+    padding: 8px;
+    color: var(--black);
+  }
+
+  .guarantee-text {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--gray);
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  /* Price comparison block */
+  .price-block {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 26px;
+    margin-top: 10px;
+  }
+
+  .price-old {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray);
+    text-decoration: line-through;
+    line-height: 1;
+    margin-bottom: 2px;
+    /* TROQUE: o preço original */
+  }
+
+  .price-new {
+    font-family: var(--font-sans);
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--black);
+    line-height: 1;
+    /* TROQUE: o preço com desconto */
+  }
+
+  .price-badge {
+    display: inline-block;
+    background: var(--red);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    /* TROQUE: o texto do badge */
+  }
+
+  /* ─── SEÇÃO 4: TRANSFORMATION TIMELINE ─── */
+  .timeline-section {
+    padding: 0 16px 20px;
+  }
+
+  .timeline-before-after {
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    height: 200px;
+    background: #ccc url('IMAGEM-BEFORE-AFTER.jpg') center/cover no-repeat;
+    margin-bottom: 16px;
+  }
+
+  .timeline-title {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--black);
+    margin-bottom: 8px;
+    /* TROQUE: o texto */
+  }
+
+  .timeline-intro {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--black);
+    margin-bottom: 20px;
+    line-height: 1.6;
+    /* TROQUE: o texto */
+  }
+
+  .timeline-step {
+    margin-bottom: 20px;
+  }
+
+  .timeline-badge {
+    display: inline-block;
+    background: var(--green);
+    color: var(--black);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    /* TROQUE: o texto do badge */
+  }
+
+  .timeline-step-title {
+    font-family: var(--font-sans);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--black);
+    margin-bottom: 8px;
+    /* TROQUE: o texto */
+  }
+
+  .timeline-checks {
+    list-style: none;
+    padding: 0;
+  }
+
+  .timeline-checks li {
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 3px 0 3px 22px;
+    position: relative;
+    color: var(--black);
+    /* TROQUE: o texto de cada item */
+  }
+
+  .timeline-checks li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--green-dark);
+    font-weight: 900;
+    font-size: 14px;
+  }
+
+  .timeline-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  .timeline-cta {
+    display: block;
+    background: var(--green);
+    color: var(--black);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 900;
+    text-align: center;
+    padding: 16px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    /* TROQUE: o href e o texto */
+  }
+
+  /* ─── SEÇÃO 5: REVIEWS ─── */
+  .reviews-section {
+    background: var(--white);
+    padding: 20px 16px;
+  }
+
+  .review-card {
+    background: var(--white);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
+
+  .review-card:last-child {
+    margin-bottom: 0;
+  }
+
+  .review-content {
+    flex: 1;
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+  }
+
+  .review-name {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--black);
+    /* TROQUE: o nome */
+  }
+
+  .review-verified {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+  }
+
+  .review-verified .check {
+    color: #1a73e8;
+    font-size: 14px;
+  }
+
+  .review-date {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 4px;
+    /* TROQUE: a data */
+  }
+
+  .review-stars {
+    color: var(--yellow);
+    font-size: 16px;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+
+  .review-text {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--black);
+    line-height: 1.5;
+    margin-bottom: 6px;
+    /* TROQUE: o texto do review */
+  }
+
+  .review-item-type {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.4;
+  }
+
+  .review-item-type strong {
+    color: var(--black);
+    font-size: 13px;
+    display: block;
+    /* TROQUE: o tipo do item */
+  }
+
+  .review-photo {
+    width: 110px;
+    min-height: 100%;
+    border-radius: 0;
+    background: #ccc center/cover no-repeat;
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+
+  /* ─── RODAPÉ ─── */
+  .footer {
+    background: var(--black);
+    padding: 24px 16px 16px;
+    text-align: center;
+    border-top: 1px solid #333;
+  }
+
+  .footer-logo {
+    width: 120px;
+    height: 50px;
+    background: #444 url('IMAGEM-LOGO.png') center/contain no-repeat;
+    margin: 0 auto 16px;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: #aaa;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .footer-copyright {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 16px;
+    /* TROQUE: o ano e a marca */
+  }
+
+  .footer-disclaimer {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    color: #555;
+    line-height: 1.6;
+    text-align: center;
+    /* TROQUE: o texto do disclaimer */
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SEÇÃO 1: HERO -->
+<!-- ═══════════════════════════════════════ -->
+<section>
+  <div class="hero-image"></div>
+
+  <div class="hero-body">
+    <div class="hero-stars">
+      <span class="stars">★★★★★</span>
+      <!-- TROQUE: o texto de prova social -->
+      <span>+200.000 Clientes Satisfeitos</span>
+    </div>
+
+    <!-- TROQUE: o título principal -->
+    <h1 class="hero-title">
+      10 Reasons Why This Simple, Natural Skincare System Is Taking Over 2025 Skincare Trends
+    </h1>
+
+    <div class="hero-author">
+      <div class="hero-author-photo"></div>
+      <div class="hero-author-info">
+        <!-- TROQUE: nome e data -->
+        <strong>By Jade M.</strong>
+        Last Updated 10th Dec, 2025
+      </div>
+    </div>
+
+    <!-- TROQUE: o parágrafo de resumo -->
+    <p class="hero-summary">
+      <span class="label">Summary</span>: You can now use the natural scientifically proven Frøya skincare system to
+      <strong>get the best skin of your life</strong>. Erase wrinkles, age spots, dull skin, dark circles, rosacea &amp; make skin look 27 years old again in 9 days (or less)! Keep reading to learn more.
+    </p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SEÇÃO 2: CONTEÚDO LISTICLE -->
+<!-- ═══════════════════════════════════════ -->
+
+<!-- ── ITEM 1 (com before/after + badge save + yes possible) ── -->
+<div class="list-item">
+  <!-- TROQUE: número e título -->
+  <h2 class="list-item-title">
+    1. Speeds metabolism, <span class="highlight">melts belly fat</span> and <span class="highlight">floppy arms &amp; legs</span>
+  </h2>
+
+  <div class="list-item-image">
+    <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-1.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- TROQUE: o texto do parágrafo -->
+  <p class="list-item-text">
+    Women goes through changes after 30 and progesterone drops, this slows metabolism and fat gathers. Arctic Goddess is developed especially to <span class="highlight">balance progesterone</span> and <span class="highlight">fat burning</span>. Making sure you'll have a breakthrough transformation in weeks. <strong>Doctors tell you it's "just aging"</strong>, and you start to believe it. You feel stuck in a body that don't feel like yours anymore. Change it now and take control of your life and weight!*
+  </p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ── ITEM 2 (com imagem de produto + texto) ── -->
+<div class="list-item">
+  <!-- TROQUE: número e título -->
+  <h2 class="list-item-title">
+    2. Viking Formula Adapts to your body: <span class="highlight">Wild Reindeer Organs</span> &amp; <span class="highlight">Arctic Herbs</span>
+  </h2>
+
+  <div class="list-item-image">
+    <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-2.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- TROQUE: o texto -->
+  <p class="list-item-text">
+    Secret ancient information passed down from the Vikings on how to thrive in the arctics fuel Arctic Goddess and make it so transformative for mature women. Vikings celebrated Reindeer Organs and Arctic Herbs <span class="highlight">to keep a young and lean body</span> full of vitality, libido and energy until their late 90s.
+  </p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ── ITEM 3 (template padrão — duplique para itens 3, 4, etc.) ── -->
+<div class="list-item">
+  <!-- TROQUE: número e título -->
+  <h2 class="list-item-title">
+    3. <span class="highlight">Item Title</span> Goes Here With Highlighted Words
+  </h2>
+
+  <div class="list-item-image">
+    <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-3.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- TROQUE: o texto -->
+  <p class="list-item-text">
+    Lorem ipsum placeholder text. <span class="highlight">Highlighted keyword</span> goes here. <strong>Bold text</strong> for emphasis. Keep reading to learn more about this incredible benefit.*
+  </p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ── ITEM 4 (template padrão) ── -->
+<div class="list-item">
+  <h2 class="list-item-title">
+    4. <span class="highlight">Item Title</span> Goes Here With Highlighted Words
+  </h2>
+  <div class="list-item-image">
+    <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-4.jpg') center/cover no-repeat;"></div>
+  </div>
+  <p class="list-item-text">
+    Lorem ipsum placeholder text. <span class="highlight">Highlighted keyword</span> goes here. <strong>Bold text</strong> for emphasis.*
+  </p>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ── ITEM 5 (com Breaking News banner + emoji list) ── -->
+<div class="list-item">
+  <!-- TROQUE: número e título -->
+  <h2 class="list-item-title">
+    5. Get the <span class="highlight">confidence</span> to thrive in all aspects of life
+  </h2>
+
+  <div class="list-item-image">
+    <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-5.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- TROQUE: o texto e a lista de bullets -->
+  <p class="list-item-text">
+    With Ancient Viking Fuel pumping through your blood and a slim, toned body, you will reach your <u>health</u> and <u>relationship</u> goals easily. <span class="highlight">After only 7 Days on Arctic Goddess users report:</span>
+  </p>
+
+  <ul class="emoji-list">
+    <!-- TROQUE: cada item da lista -->
+    <li>🔥 Fat melting away*</li>
+    <li>⚡ Increase in energy and mood*</li>
+    <li>💤 Better sleep and rest*</li>
+    <li>😊 Lower anxiety and negative thoughts*</li>
+  </ul>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ── ITENS 6–10: copie o template abaixo quantas vezes precisar ── -->
+<!-- TEMPLATE ITEM GENÉRICO — duplique e adapte -->
+<div class="list-item">
+  <h2 class="list-item-title">
+    6. <span class="highlight">Item Title</span> Goes Here
+  </h2>
+  <div class="list-item-image">
+    <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-6.jpg') center/cover no-repeat;"></div>
+  </div>
+  <p class="list-item-text">
+    Lorem ipsum placeholder text. <span class="highlight">Highlighted keyword</span> goes here. <strong>Bold text</strong> for emphasis.*
+  </p>
+</div>
+
+<div style="height: 32px;"></div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SEÇÃO 3: OFERTA 1 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="offer-block">
+  <!-- TROQUE: título da oferta -->
+  <h2 class="offer-title">
+    SPRING FLASH SALE <span class="highlight">TODAY<br>ONLY</span>
+  </h2>
+
+  <!-- TROQUE: subtítulo -->
+  <p class="offer-subtitle">
+    GET THE LIFE-CHANGING PRIMAL JOINT REPAIR<br>RITUAL AT <span class="highlight">50% OFF NOW</span>
+  </p>
+
+  <!-- Imagem do produto -->
+  <div class="product-image-wrap">
+    <div class="product-stat-bar">
+      <!-- TROQUE: texto de prova -->
+      94% experienced less Joint Pain within 20 days
+    </div>
+
+    <div style="position:relative;">
+      <div class="product-img" style="background: #888 url('IMAGEM-PRODUTO-1.jpg') center/cover no-repeat;"></div>
+    </div>
+
+    <div class="product-stat-bar" style="font-weight:400;">
+      🚚 Envío gratis en todos los pedidos
+    </div>
+  </div>
+
+  <!-- Urgência -->
+  <div class="urgency-label">PROMOCIÓN RELÁMPAGO POR TIEMPO LIMITADO</div>
+
+  <div class="urgency-title">
+    AHORRA <span class="highlight">50%</span> AHORA!
+  </div>
+
+  <!-- Comparativo de preço -->
+  <div class="price-block">
+    <!-- TROQUE: preços -->
+    <span class="price-old">$ 159.800,00</span>
+    <span class="price-new">$ 79.900,00</span>
+  </div>
+
+  <!-- TROQUE: href para o link do produto -->
+  <a href="SEU-LINK-AQUI" class="cta-btn">OBTENER 50% DE DESCUENTO →</a>
+
+  <div class="countdown-row">
+    OFERTA TERMINA EN: <span class="countdown-timer" id="timer1">00:00:00</span>
+  </div>
+  <div class="stock-row">
+    FRASCOS RESTANTES: <span class="stock-number">46</span>
+  </div>
+
+  <!-- TROQUE: texto de garantia -->
+  <p class="guarantee-text">¡Garantía de reembolso de 30 días!</p>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SEÇÃO 4: TRANSFORMATION TIMELINE -->
+<!-- ═══════════════════════════════════════ -->
+<div style="height:60px;"></div>
+<div class="section-divider"></div>
+
+<section class="timeline-section">
+  <div class="timeline-before-after" style="background: #ccc url('IMAGEM-BEFORE-AFTER.jpg') center/cover no-repeat;"></div>
+
+  <!-- TROQUE: título e intro -->
+  <h2 class="timeline-title">SUA JORNADA PARA UMA PELE DE SEDA</h2>
+  <p class="timeline-intro">
+    A transformação acontece por etapas. Veja como o S-Control resgata a saúde do seu rosto dia após dia.
+  </p>
+
+  <!-- ETAPA 1 — TROQUE: badge, título e itens -->
+  <div class="timeline-step">
+    <div class="timeline-badge">Dias 1–3</div>
+    <h3 class="timeline-step-title">Equilíbrio Imediato</h3>
+    <ul class="timeline-checks">
+      <li>O brilho excessivo na zona T desaparece instantaneamente.</li>
+      <li>Sua pele absorve a hidratação sem ficar pegajosa ou pesada.</li>
+      <li>Acalma a vermelhidão e o desconforto das inflamações ativas.</li>
+    </ul>
+  </div>
+
+  <div class="timeline-divider"></div>
+
+  <!-- ETAPA 2 — TROQUE: badge, título e itens -->
+  <div class="timeline-step">
+    <div class="timeline-badge">Dia 10</div>
+    <h3 class="timeline-step-title">Textura Refinada</h3>
+    <ul class="timeline-checks">
+      <li>Os poros tornam-se visivelmente menores e mais limpos.</li>
+      <li>Rosto com viço saudável e tonalidade muito mais uniforme.</li>
+      <li>As espinhas secam mais rápido e a pele ganha um toque aveludado.</li>
+    </ul>
+  </div>
+
+  <div class="timeline-divider"></div>
+
+  <!-- ETAPA 3 — TROQUE: badge, título e itens -->
+  <div class="timeline-step">
+    <div class="timeline-badge">30 Dias+</div>
+    <h3 class="timeline-step-title">Transformação Total</h3>
+    <ul class="timeline-checks">
+      <li>Barreira cutânea fortalecida contra novas crises de acne.</li>
+      <li>Hair feels heavy, lush, and full again.</li>
+      <li>Liberdade total e confiança para sair de casa sem usar base.</li>
+    </ul>
+  </div>
+
+  <!-- TROQUE: href e texto do CTA -->
+  <a href="SEU-LINK-AQUI" class="timeline-cta">COMEÇAR MINHA TRANSFORMAÇÃO</a>
+</section>
+
+<div style="height:60px;"></div>
+<!-- ═══════════════════════════════════════ -->
+<!-- SEÇÃO 5: PROVA SOCIAL (REVIEWS) -->
+<!-- ═══════════════════════════════════════ -->
+<section class="reviews-section">
+
+  <!-- REVIEW 1 — TROQUE: nome, data, texto, item, foto -->
+  <div class="review-card">
+    <div class="review-content">
+      <div class="review-header">
+        <span class="review-name">Josue R.</span>
+        <span class="review-verified"><span class="check">✔</span> Verified</span>
+      </div>
+      <div class="review-date">25/02/2026</div>
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">.</p>
+    </div>
+    <div class="review-photo" style="background: #ccc url('IMAGEM-REVIEW-1.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- REVIEW 2 -->
+  <div class="review-card">
+    <div class="review-content">
+      <div class="review-header">
+        <span class="review-name">Raymond B.</span>
+        <span class="review-verified"><span class="check">✔</span> Verified</span>
+      </div>
+      <div class="review-date">10/02/2026</div>
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">Seem be working great more energy i am 60 works good</p>
+    </div>
+    <div class="review-photo" style="background: #ccc url('IMAGEM-REVIEW-2.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- REVIEW 3 -->
+  <div class="review-card">
+    <div class="review-content">
+      <div class="review-header">
+        <span class="review-name">Michael B.</span>
+        <span class="review-verified"><span class="check">✔</span> Verified</span>
+      </div>
+      <div class="review-date">07/03/2026</div>
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">Gives me more energy and makes me stronger</p>
+    </div>
+    <div class="review-photo" style="background: #ccc url('IMAGEM-REVIEW-3.jpg') center/cover no-repeat;"></div>
+  </div>
+
+  <!-- DUPLIQUE .review-card acima para adicionar mais reviews -->
+
+</section>
+
+<div style="height:60px;"></div>
+<!-- ═══════════════════════════════════════ -->
+<!-- SEÇÃO 6: OFERTA 2 -->
+<!-- ═══════════════════════════════════════ -->
+<div class="offer-block">
+  <!-- TROQUE: título -->
+  <h2 class="offer-title red-title">
+    LAST CHANCE<br>SPRING FLASH SALE
+  </h2>
+
+  <!-- Imagem do produto 2 -->
+  <div class="product-image-wrap">
+    <div class="product-stat-bar">
+      <!-- TROQUE: texto de prova -->
+      96% of users LOST FAT and felt MORE DRIVE
+    </div>
+
+    <div style="position:relative;">
+      <div class="product-img" style="background: #888 url('IMAGEM-PRODUTO-2.jpg') center/cover no-repeat;"></div>
+    </div>
+
+    <div class="product-stat-bar" style="font-weight:400;">
+      🚚 Envío gratis en todos los pedidos
+    </div>
+  </div>
+
+  <!-- Urgência -->
+  <div style="margin-top:16px;">
+    <div class="urgency-label">PROMOCIÓN RELÁMPAGO POR TIEMPO LIMITADO</div>
+
+    <div class="urgency-title">
+      AHORRA <span class="highlight">50%</span> AHORA!
+    </div>
+
+    <!-- Comparativo de preço -->
+    <div class="price-block">
+      <!-- TROQUE: preços -->
+      <span class="price-old">$ 159.800,00</span>
+      <span class="price-new">$ 79.900,00</span>
+    </div>
+
+    <!-- TROQUE: href -->
+    <a href="SEU-LINK-AQUI" class="cta-btn">OBTENER 50% DE DESCUENTO →</a>
+
+    <div class="countdown-row">
+      OFERTA TERMINA EN: <span class="countdown-timer" id="timer2">00:05:26</span>
+    </div>
+    <div class="stock-row">
+      FRASCOS RESTANTES: <span class="stock-number">24</span>
+    </div>
+
+    <p class="guarantee-text">¡Garantía de reembolso de 30 días!</p>
+  </div>
+</div>
+
+<div style="height:60px;"></div>
+<!-- ═══════════════════════════════════════ -->
+<!-- RODAPÉ -->
+<!-- ═══════════════════════════════════════ -->
+<footer class="footer">
+  <!-- TROQUE: ano e marca -->
+  <p class="footer-copyright">© 2025 Primal Viking. All Rights Reserved.</p>
+
+  <!-- TROQUE: disclaimer legal -->
+  <p class="footer-disclaimer">
+    *The statements made on this website have not been evaluated by the FDA (U.S. Food &amp; Drug Administration). The products sold on this website are not intended to diagnose, treat, cure, or prevent any disease. The information provided by this website should not be construed as individual medical advice. It is for information purpose only. Please consult your doctor before using this product.
+  </p>
+</footer>
+
+<script>
+  // ─── COUNTDOWN TIMER ───
+  // Configura timers independentes para cada bloco de oferta
+  function startCountdown(elementId, totalSeconds) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    let seconds = totalSeconds;
+
+    function tick() {
+      const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+      const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+      const s = String(seconds % 60).padStart(2, '0');
+      el.textContent = h + ':' + m + ':' + s;
+      if (seconds > 0) {
+        seconds--;
+        setTimeout(tick, 1000);
+      }
+    }
+    tick();
+  }
+
+  // TROQUE: os segundos iniciais de cada timer
+  // Timer 1 (Oferta 1): começa em 00:00:00 — mude para o tempo desejado (ex: 900 = 15min)
+  startCountdown('timer1', 900);
+  // Timer 2 (Oferta 2): começa em 00:05:26 = 326 segundos
+  startCountdown('timer2', 326);
+</script>
+
+</body>
+</html>

@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Listicle Builder
 
-## Getting Started
+App web (Next.js + TypeScript) que gera **listicle pages** estilo direct response
+("10 Reasons Why...") a partir de copy bruta + imagens fixas, com:
 
-First, run the development server:
+- **Anthropic Claude** estruturando a copy bruta em slots do template.
+- **OpenAI gpt-image-1** gerando as imagens contextuais.
+- **JSZip** empacotando `index.html + img/` no navegador pra você baixar e
+  hospedar onde quiser.
+
+## Status
+
+MVP em construção. Sprint 1 (esqueleto + deploy) concluído.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript strict
+- Tailwind CSS v4 + shadcn/ui
+- (próximos sprints) cheerio, @anthropic-ai/sdk, openai, react-hook-form, zod, jszip
+- Deploy: Vercel via GitHub
+- Persistência: nenhuma (estado vive no cliente, sem backend pesado)
+
+## Rodar local
 
 ```bash
+npm install
+cp .env.example .env.local   # e preencha as chaves
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variáveis de ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Veja `.env.example`. Em produção elas vão na aba "Environment Variables" do
+projeto na Vercel.
 
-## Learn More
+| Variável             | Para que serve                                |
+| -------------------- | --------------------------------------------- |
+| `OPENAI_API_KEY`     | Gerar imagens (gpt-image-1, qualidade `high`) |
+| `ANTHROPIC_API_KEY`  | Estruturar copy bruta em spec (Claude)        |
 
-To learn more about Next.js, take a look at the following resources:
+## Estrutura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/                 rotas e API routes
+components/ui/       primitivos shadcn
+lib/                 (próximos sprints) builder, clients de IA, zip
+templates/
+  listicle-classica/
+    base.html        # HTML base do template (não regerar do zero)
+    schema.json      # (sprint 2) mapeia slots → seletores
+    ai-prompts.ts    # (sprint 5) prompts por slot de imagem IA
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Adicionar template novo no futuro = criar pasta nova com 3 arquivos. Zero
+mudança no código do app.
