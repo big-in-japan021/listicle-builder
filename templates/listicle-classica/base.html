@@ -241,13 +241,27 @@
     padding-bottom: 20px;
   }
 
-  .list-item-text .highlight {
+  .list-item-text .highlight,
+  .hero-summary .highlight,
+  .review-text .highlight,
+  .timeline-intro .highlight {
     color: var(--orange);
     font-weight: 600;
   }
 
-  .list-item-text strong {
+  .list-item-text strong,
+  .hero-summary strong,
+  .review-text strong,
+  .timeline-intro strong {
     font-weight: 700;
+  }
+
+  /* Espaçamento entre parágrafos dentro dos blocos de texto (reset universal zera margens). */
+  .list-item-text p + p,
+  .hero-summary p + p,
+  .review-text p + p,
+  .timeline-intro p + p {
+    margin-top: 14px;
   }
 
   /* Breaking News Banner */
@@ -1008,10 +1022,10 @@
     </div>
 
     <!-- TROQUE: o parágrafo de resumo -->
-    <p class="hero-summary">
+    <div class="hero-summary">
       <span class="label">Summary</span>: You can now use the natural scientifically proven Frøya skincare system to
       <strong>get the best skin of your life</strong>. Erase wrinkles, age spots, dull skin, dark circles, rosacea &amp; make skin look 27 years old again in 9 days (or less)! Keep reading to learn more.
-    </p>
+    </div>
   </div>
 </section>
 
@@ -1033,9 +1047,9 @@
   </div>
 
   <!-- TROQUE: o texto do parágrafo -->
-  <p class="list-item-text">
+  <div class="list-item-text">
     Women goes through changes after 30 and progesterone drops, this slows metabolism and fat gathers. Arctic Goddess is developed especially to <span class="highlight">balance progesterone</span> and <span class="highlight">fat burning</span>. Making sure you'll have a breakthrough transformation in weeks. <strong>Doctors tell you it's "just aging"</strong>, and you start to believe it. You feel stuck in a body that don't feel like yours anymore. Change it now and take control of your life and weight!*
-  </p>
+  </div>
 </div>
 
 <div class="section-divider"></div>
@@ -1052,9 +1066,9 @@
   </div>
 
   <!-- TROQUE: o texto -->
-  <p class="list-item-text">
+  <div class="list-item-text">
     Secret ancient information passed down from the Vikings on how to thrive in the arctics fuel Arctic Goddess and make it so transformative for mature women. Vikings celebrated Reindeer Organs and Arctic Herbs <span class="highlight">to keep a young and lean body</span> full of vitality, libido and energy until their late 90s.
-  </p>
+  </div>
 </div>
 
 <div class="section-divider"></div>
@@ -1071,9 +1085,9 @@
   </div>
 
   <!-- TROQUE: o texto -->
-  <p class="list-item-text">
+  <div class="list-item-text">
     Lorem ipsum placeholder text. <span class="highlight">Highlighted keyword</span> goes here. <strong>Bold text</strong> for emphasis. Keep reading to learn more about this incredible benefit.*
-  </p>
+  </div>
 </div>
 
 <div class="section-divider"></div>
@@ -1086,9 +1100,9 @@
   <div class="list-item-image">
     <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-4.jpg') center/cover no-repeat;"></div>
   </div>
-  <p class="list-item-text">
+  <div class="list-item-text">
     Lorem ipsum placeholder text. <span class="highlight">Highlighted keyword</span> goes here. <strong>Bold text</strong> for emphasis.*
-  </p>
+  </div>
 </div>
 
 <div class="section-divider"></div>
@@ -1105,9 +1119,9 @@
   </div>
 
   <!-- TROQUE: o texto e a lista de bullets -->
-  <p class="list-item-text">
+  <div class="list-item-text">
     With Ancient Viking Fuel pumping through your blood and a slim, toned body, you will reach your <u>health</u> and <u>relationship</u> goals easily. <span class="highlight">After only 7 Days on Arctic Goddess users report:</span>
-  </p>
+  </div>
 
   <ul class="emoji-list">
     <!-- TROQUE: cada item da lista -->
@@ -1129,9 +1143,9 @@
   <div class="list-item-image">
     <div class="img-placeholder" style="background: #ddd url('IMAGEM-ITEM-6.jpg') center/cover no-repeat;"></div>
   </div>
-  <p class="list-item-text">
+  <div class="list-item-text">
     Lorem ipsum placeholder text. <span class="highlight">Highlighted keyword</span> goes here. <strong>Bold text</strong> for emphasis.*
-  </p>
+  </div>
 </div>
 
 <div style="height: 32px;"></div>
@@ -1205,9 +1219,9 @@
 
   <!-- TROQUE: título e intro -->
   <h2 class="timeline-title">SUA JORNADA PARA UMA PELE DE SEDA</h2>
-  <p class="timeline-intro">
+  <div class="timeline-intro">
     A transformação acontece por etapas. Veja como o S-Control resgata a saúde do seu rosto dia após dia.
-  </p>
+  </div>
 
   <!-- ETAPA 1 — TROQUE: badge, título e itens -->
   <div class="timeline-step">
@@ -1265,7 +1279,7 @@
       </div>
       <div class="review-date">25/02/2026</div>
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">.</p>
+      <div class="review-text">.</div>
     </div>
     <div class="review-photo" style="background: #ccc url('IMAGEM-REVIEW-1.jpg') center/cover no-repeat;"></div>
   </div>
@@ -1279,7 +1293,7 @@
       </div>
       <div class="review-date">10/02/2026</div>
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">Seem be working great more energy i am 60 works good</p>
+      <div class="review-text">Seem be working great more energy i am 60 works good</div>
     </div>
     <div class="review-photo" style="background: #ccc url('IMAGEM-REVIEW-2.jpg') center/cover no-repeat;"></div>
   </div>
@@ -1293,7 +1307,7 @@
       </div>
       <div class="review-date">07/03/2026</div>
       <div class="review-stars">★★★★★</div>
-      <p class="review-text">Gives me more energy and makes me stronger</p>
+      <div class="review-text">Gives me more energy and makes me stronger</div>
     </div>
     <div class="review-photo" style="background: #ccc url('IMAGEM-REVIEW-3.jpg') center/cover no-repeat;"></div>
   </div>
