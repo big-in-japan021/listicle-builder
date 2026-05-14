@@ -5,9 +5,8 @@ const nextConfig: NextConfig = {
   // funções serverless (Vercel), pra /api/build conseguir ler base.html
   // e schema.json em runtime via fs.readFileSync.
   outputFileTracingIncludes: {
-    "/api/build": ["./templates/**/*"],
-    "/api/structure-copy": ["./templates/**/*"],
-    "/editor/[template]": ["./templates/**/*"],
+    "/api/build": ["./templates/**/*.html"],
+    "/api/structure-copy": ["./templates/**/*.html"],
   },
 };
 
