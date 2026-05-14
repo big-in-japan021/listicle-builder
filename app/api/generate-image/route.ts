@@ -74,6 +74,10 @@ export async function POST(request: Request) {
       size: size as ImageSize,
       quality,
       n: 1,
+      // JPEG + 85% reduz o tamanho em ~3-5x vs PNG, evitando o limite de 4.5MB
+      // de body de resposta da Vercel quando a imagem é 1536x1024 em high.
+      output_format: "jpeg",
+      output_compression: 85,
     });
     const elapsed = Date.now() - start;
     console.log(
@@ -89,7 +93,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      image_b64: `data:image/png;base64,${b64}`,
+      image_b64: `data:image/jpeg;base64,${b64}`,
       prompt,
       size,
       quality,

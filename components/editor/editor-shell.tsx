@@ -67,6 +67,26 @@ function slugify(s: string): string {
     .slice(0, 50);
 }
 
+/** Tenta parsear o body como JSON; se a Vercel devolveu HTML/texto (413, 504, etc),
+ *  retorna um objeto T com `error` preenchido. Evita "Unexpected token..." no toast. */
+async function safeReadJson<T extends { error?: string }>(
+  res: Response
+): Promise<T> {
+  const text = await res.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    const short = text.slice(0, 200).replace(/<[^>]+>/g, "").trim();
+    let error: string;
+    if (res.status === 413)
+      error = "Resposta grande demais (413). Imagem está pesada.";
+    else if (res.status === 504)
+      error = "A IA demorou demais e a função expirou (504).";
+    else error = `HTTP ${res.status}: ${short || "resposta não-JSON"}`;
+    return { error } as T;
+  }
+}
+
 async function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -157,13 +177,13 @@ export function EditorShell({ templateName }: EditorShellProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const body = (await res.json()) as {
+      const body = await safeReadJson<{
         spec?: Spec;
         html?: string;
         ai?: AiOutput;
         error?: string;
         details?: unknown;
-      };
+      }>(res);
       if (!res.ok || !body.html) {
         toast.error(body.error ?? "Falha ao estruturar com IA");
         return;
@@ -209,7 +229,7 @@ export function EditorShell({ templateName }: EditorShellProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ template: templateName, spec }),
       });
-      const body = (await res.json()) as { html?: string; error?: string };
+      const body = await safeReadJson<{ html?: string; error?: string }>(res);
       if (!res.ok || !body.html) {
         toast.error(body.error ?? "Falha ao gerar preview");
         return;
@@ -277,10 +297,10 @@ export function EditorShell({ templateName }: EditorShellProps) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ slot: p.slot, context: ctx, quality }),
         });
-        const body = (await res.json()) as {
+        const body = await safeReadJson<{
           image_b64?: string;
           error?: string;
-        };
+        }>(res);
         if (!res.ok || !body.image_b64) {
           console.warn(`Slot ${p.id} falhou:`, body.error);
           setSlotStatuses((prev) => ({ ...prev, [p.id]: "error" }));
