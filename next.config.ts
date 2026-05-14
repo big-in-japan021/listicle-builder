@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/build": ["./templates/**/*"],
     "/api/structure-copy": ["./templates/**/*"],
+    "/editor/[template]": ["./templates/**/*"],
   },
 };
 
