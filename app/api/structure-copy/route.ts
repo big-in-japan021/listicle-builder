@@ -16,7 +16,7 @@ import { buildSpec } from "@/templates/listicle-classica/build-spec";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MODEL = "claude-sonnet-4-6";
+const MODEL = "claude-sonnet-4-5";
 
 async function loadBaseHtml(template: string): Promise<string> {
   const filePath = path.join(process.cwd(), "templates", template, "base.html");
@@ -24,39 +24,43 @@ async function loadBaseHtml(template: string): Promise<string> {
 }
 
 export async function POST(request: Request) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(
-      {
-        error:
-          "Chave ANTHROPIC_API_KEY não configurada. Configure nas env vars da Vercel.",
-      },
-      { status: 500 }
-    );
-  }
-
-  let payload: unknown;
   try {
-    payload = await request.json();
-  } catch {
-    return NextResponse.json({ error: "JSON inválido no body" }, { status: 400 });
-  }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return NextResponse.json(
+        {
+          error:
+            "Chave ANTHROPIC_API_KEY não configurada. Configure nas env vars da Vercel.",
+        },
+        { status: 500 }
+      );
+    }
 
-  const parsed = editorInputSchema.safeParse(payload);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: "Input inválido", details: parsed.error.flatten() },
-      { status: 400 }
-    );
-  }
-  const input = parsed.data;
+    let payload: unknown;
+    try {
+      payload = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "JSON inválido no body" },
+        { status: 400 }
+      );
+    }
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const parsed = editorInputSchema.safeParse(payload);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Input inválido", details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
+    const input = parsed.data;
 
-  let aiOutput: AiOutput;
-  try {
+    // ── Chamada à Anthropic ─────────────────────────────────────────
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    const start = Date.now();
     const message = await client.messages.create({
       model: MODEL,
-      max_tokens: 8000,
+      max_tokens: 4096,
       system: systemPrompt,
       tools: [fillListicleSpecTool],
       tool_choice: { type: "tool", name: fillListicleSpecTool.name },
@@ -82,42 +86,65 @@ export async function POST(request: Request) {
         },
       ],
     });
+    const elapsed = Date.now() - start;
+    console.log(
+      `[structure-copy] Claude respondeu em ${elapsed}ms, stop=${message.stop_reason}`
+    );
 
     const toolUse = message.content.find(
       (b): b is Anthropic.ToolUseBlock => b.type === "tool_use"
     );
     if (!toolUse) {
+      const textBlock = message.content.find(
+        (b): b is Anthropic.TextBlock => b.type === "text"
+      );
+      console.warn(
+        "[structure-copy] resposta sem tool_use, stop_reason=",
+        message.stop_reason
+      );
       return NextResponse.json(
         {
-          error: "A IA não devolveu via tool call (resposta inesperada). Tenta de novo.",
+          error:
+            "A IA respondeu sem chamar a tool. Tenta de novo ou refaz a copy.",
+          debug: { stop_reason: message.stop_reason, text: textBlock?.text },
         },
         { status: 502 }
       );
     }
-    aiOutput = toolUse.input as AiOutput;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Erro desconhecido na API da Anthropic";
-    return NextResponse.json(
-      { error: `Falha ao chamar a IA: ${msg}` },
-      { status: 502 }
-    );
-  }
 
-  const spec = buildSpec(input, aiOutput);
+    const aiOutput = toolUse.input as AiOutput;
 
-  let html: string;
-  try {
+    // Sanity check mínimo na shape devolvida.
+    if (
+      !aiOutput?.hero?.title_html ||
+      !Array.isArray(aiOutput?.list_items) ||
+      aiOutput.list_items.length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A IA devolveu uma estrutura incompleta. Tenta de novo (talvez com copy maior).",
+          debug: { aiOutput },
+        },
+        { status: 502 }
+      );
+    }
+
+    // ── Monta o spec e renderiza ────────────────────────────────────
+    const spec = buildSpec(input, aiOutput);
     const baseHtml = await loadBaseHtml("listicle-classica");
-    html = buildListicle(baseHtml, spec);
+    const html = buildListicle(baseHtml, spec);
+
+    return NextResponse.json({ spec, html, ai: aiOutput });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Erro desconhecido";
+    const errorMessage =
+      err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    console.error("[structure-copy] erro inesperado:", err);
     return NextResponse.json(
-      { error: `IA OK mas falhei na renderização: ${msg}` },
+      { error: `Erro interno: ${errorMessage}` },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ spec, html, ai: aiOutput });
 }
 
 export async function GET() {
