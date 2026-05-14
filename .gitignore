@@ -34,6 +34,10 @@ yarn-error.log*
 .env*
 !.env.example
 
+# arquivos de output de teste/smoke
+smoke-test-output.html
+/tmp-output/
+
 # vercel
 .vercel
 
