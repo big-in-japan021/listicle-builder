@@ -3,6 +3,10 @@
 /** Tipo do JSON que o Claude devolve via tool call `fill_listicle_spec`. */
 export type AiOutput = {
   page_title: string;
+  /** Descrição curta do público-alvo (usada nos prompts de imagem). Ex: "mulher 35-55 anos, brasileira, cabelo médio". */
+  target_customer: string;
+  /** Categoria do produto, em poucas palavras. Ex: "suplemento natural para perda de peso". */
+  product_category: string;
   hero: {
     title_html: string;
     social_proof: string;
@@ -42,6 +46,16 @@ export const fillListicleSpecTool = {
         type: "string",
         description:
           "Título da aba do navegador. Pode ser igual ao headline ou uma versão mais curta dele.",
+      },
+      target_customer: {
+        type: "string",
+        description:
+          'Descrição curta (5-15 palavras) do público-alvo da copy, EM INGLÊS (sempre). Detalhes: gênero, faixa etária, aparência típica, contexto cultural se relevante. Ex: "Brazilian woman, 35-55 years old, natural skin tone, mid-length hair". Usado pra gerar imagens contextualmente coerentes.',
+      },
+      product_category: {
+        type: "string",
+        description:
+          'Categoria do produto, EM INGLÊS, em 3-7 palavras. Ex: "natural weight loss supplement for women 30+", "anti-aging skincare for mature skin". Usado pra gerar imagens contextualmente coerentes.',
       },
       hero: {
         type: "object",
@@ -163,7 +177,15 @@ export const fillListicleSpecTool = {
         required: ["copyright", "disclaimer"],
       },
     },
-    required: ["page_title", "hero", "list_items", "timeline", "footer"],
+    required: [
+      "page_title",
+      "target_customer",
+      "product_category",
+      "hero",
+      "list_items",
+      "timeline",
+      "footer",
+    ],
   },
 };
 
@@ -200,5 +222,7 @@ REGRAS RÍGIDAS:
 7. **author_name:** nome plausível de jornalista/redatora no idioma da copy. NÃO usar o nome do produto.
 
 8. **footer.disclaimer:** texto legal genérico apropriado pra categoria. Se for um suplemento/health, mencione não-avaliação pela autoridade local (Anvisa pra PT, FDA pra EN). Sem links.
+
+9. **target_customer e product_category:** sempre EM INGLÊS, mesmo se a copy for em PT/ES. Esses campos não aparecem na página renderizada — eles servem só pra alimentar prompts de imagem de outra IA (gpt-image-1) que produz melhor em inglês. Descreva o público-alvo de forma específica e visual (ex: "Brazilian woman, 35-55, natural skin tone, candid expression").
 
 DEVOLVA SEMPRE via tool call \`fill_listicle_spec\`. Não responda em texto direto.`;

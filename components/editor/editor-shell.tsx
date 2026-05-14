@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import pLimit from "p-limit";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -11,10 +12,22 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PreviewIframe } from "@/components/editor/preview-iframe";
 import type { EditorInput, ReviewInput } from "@/lib/editor-input";
+import { getCachedImage, setCachedImage } from "@/lib/image-cache";
+import {
+  applyImagesToSpec,
+  planSlotsForSpec,
+  type PlannedSlot,
+} from "@/lib/image-slots";
 import type { Spec } from "@/lib/types";
 import type { AiOutput } from "@/templates/listicle-classica/ai-prompts";
 import { buildSpec } from "@/templates/listicle-classica/build-spec";
+import {
+  promptForSlot,
+  type ImageContext,
+} from "@/templates/listicle-classica/image-prompts";
 import { cn } from "@/lib/utils";
+
+type SlotStatus = "pending" | "generating" | "done" | "error";
 
 type EditorShellProps = {
   templateName: string;
@@ -76,6 +89,10 @@ export function EditorShell({ templateName }: EditorShellProps) {
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [previewLoading, setPreviewLoading] = useState(false);
+  /** targetPath (ex: "hero.image", "list_items.2.image") → data URI da imagem IA. */
+  const [imagesMap, setImagesMap] = useState<Record<string, string>>({});
+  const [slotStatuses, setSlotStatuses] = useState<Record<string, SlotStatus>>({});
+  const [imagesLoading, setImagesLoading] = useState(false);
   const initialLoadRan = useRef(false);
 
   // Hidrata do localStorage
@@ -154,6 +171,9 @@ export function EditorShell({ templateName }: EditorShellProps) {
       if (body.ai) setAiOutput(body.ai);
       if (body.html) setPreviewHtml(body.html);
       if (payload.slug !== input.slug) setInput((p) => ({ ...p, slug: finalSlug }));
+      // Nova estrutura = reset das imagens IA antigas (que podem não fazer mais sentido).
+      setImagesMap({});
+      setSlotStatuses({});
       toast.success("Copy estruturada — preview atualizado.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro de rede");
@@ -182,7 +202,8 @@ export function EditorShell({ templateName }: EditorShellProps) {
 
     setPreviewLoading(true);
     try {
-      const spec = buildSpec(inputForBuild, aiOutput);
+      const baseSpec = buildSpec(inputForBuild, aiOutput);
+      const spec = applyImagesToSpec(baseSpec, imagesMap);
       const res = await fetch("/api/build", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -199,16 +220,169 @@ export function EditorShell({ templateName }: EditorShellProps) {
     } finally {
       setPreviewLoading(false);
     }
-  }, [aiOutput, input, templateName, handleStructure]);
+  }, [aiOutput, imagesMap, input, templateName, handleStructure]);
+
+  // ── GERAÇÃO DE IMAGENS IA ───────────────────────────────────────
+  const handleGenerateImages = useCallback(async () => {
+    if (!aiOutput) {
+      toast.error('Primeiro clique em "Estruturar com IA".');
+      return;
+    }
+    const cleanReviews = input.reviews.filter(
+      (r) => r.name.trim() !== "" && r.text.trim() !== ""
+    );
+    const finalSlug =
+      input.slug.trim() || slugify(input.product.name) || "nova-listicle";
+    const inputForPlan: EditorInput = {
+      ...input,
+      slug: finalSlug,
+      reviews: cleanReviews,
+    };
+
+    const baseSpec = buildSpec(inputForPlan, aiOutput);
+    const plan = planSlotsForSpec(baseSpec);
+    if (plan.length === 0) {
+      toast.success("Todas as imagens já estão preenchidas.");
+      return;
+    }
+
+    const ctx: ImageContext = {
+      product_category: aiOutput.product_category,
+      customer_description: aiOutput.target_customer,
+    };
+
+    setImagesLoading(true);
+    setSlotStatuses(
+      Object.fromEntries(plan.map((p) => [p.id, "pending" as SlotStatus]))
+    );
+
+    const limit = pLimit(4);
+    const generateOne = async (p: PlannedSlot) => {
+      setSlotStatuses((prev) => ({ ...prev, [p.id]: "generating" }));
+      const promptInfo = promptForSlot(p.slot, ctx);
+      const quality = "high";
+      try {
+        const cached = await getCachedImage(
+          promptInfo.prompt,
+          promptInfo.size,
+          quality
+        );
+        if (cached) {
+          setImagesMap((prev) => ({ ...prev, [p.targetPath]: cached }));
+          setSlotStatuses((prev) => ({ ...prev, [p.id]: "done" }));
+          return;
+        }
+        const res = await fetch("/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ slot: p.slot, context: ctx, quality }),
+        });
+        const body = (await res.json()) as {
+          image_b64?: string;
+          error?: string;
+        };
+        if (!res.ok || !body.image_b64) {
+          console.warn(`Slot ${p.id} falhou:`, body.error);
+          setSlotStatuses((prev) => ({ ...prev, [p.id]: "error" }));
+          return;
+        }
+        await setCachedImage(
+          promptInfo.prompt,
+          promptInfo.size,
+          quality,
+          body.image_b64
+        );
+        setImagesMap((prev) => ({ ...prev, [p.targetPath]: body.image_b64! }));
+        setSlotStatuses((prev) => ({ ...prev, [p.id]: "done" }));
+      } catch (err) {
+        console.warn(`Slot ${p.id} erro:`, err);
+        setSlotStatuses((prev) => ({ ...prev, [p.id]: "error" }));
+      }
+    };
+
+    await Promise.all(plan.map((p) => limit(() => generateOne(p))));
+    setImagesLoading(false);
+    const failed = Object.values(slotStatuses).filter((s) => s === "error").length;
+    if (failed > 0) {
+      toast.error(
+        `${plan.length - failed}/${plan.length} imagens prontas — ${failed} falharam.`
+      );
+    } else {
+      toast.success(`${plan.length} imagens prontas.`);
+    }
+  }, [aiOutput, input, slotStatuses]);
+
+  // Debounce: a cada mudança em imagesMap, refazer o preview com as novas imagens.
+  useEffect(() => {
+    if (!aiOutput) return;
+    if (Object.keys(imagesMap).length === 0 && !previewHtml) return;
+    const timer = setTimeout(() => {
+      void handleRefreshPreview();
+    }, 600);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imagesMap]);
+
+  // Após hidratar, se já tinha aiOutput, tenta restaurar imagens do cache.
+  useEffect(() => {
+    if (!hydrated || !aiOutput) return;
+    let cancelled = false;
+    (async () => {
+      const cleanReviews = input.reviews.filter(
+        (r) => r.name.trim() !== "" && r.text.trim() !== ""
+      );
+      const inputForPlan: EditorInput = {
+        ...input,
+        slug: input.slug || slugify(input.product.name) || "nova-listicle",
+        reviews: cleanReviews,
+      };
+      const baseSpec = buildSpec(inputForPlan, aiOutput);
+      const plan = planSlotsForSpec(baseSpec);
+      const ctx: ImageContext = {
+        product_category: aiOutput.product_category,
+        customer_description: aiOutput.target_customer,
+      };
+      const restored: Record<string, string> = {};
+      for (const p of plan) {
+        const promptInfo = promptForSlot(p.slot, ctx);
+        const cached = await getCachedImage(
+          promptInfo.prompt,
+          promptInfo.size,
+          "high"
+        );
+        if (cached) restored[p.targetPath] = cached;
+      }
+      if (!cancelled && Object.keys(restored).length > 0) {
+        setImagesMap(restored);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, aiOutput]);
+
+  const generatedCount = useMemo(
+    () =>
+      Object.values(slotStatuses).filter((s) => s === "done" || s === "error")
+        .length,
+    [slotStatuses]
+  );
+  const totalSlots = useMemo(
+    () => Object.keys(slotStatuses).length,
+    [slotStatuses]
+  );
 
   const handleReset = useCallback(() => {
     const ok = window.confirm(
-      "Isso apaga tudo (copy, fotos, reviews, preview) e volta ao zero. Continuar?"
+      "Isso apaga tudo (copy, fotos, reviews, preview, imagens IA) e volta ao zero. Continuar?"
     );
     if (!ok) return;
     setInput(emptyInput());
     setAiOutput(null);
     setPreviewHtml(null);
+    setImagesMap({});
+    setSlotStatuses({});
     try {
       window.localStorage.removeItem(storageKey);
     } catch {
@@ -300,10 +474,26 @@ export function EditorShell({ templateName }: EditorShellProps) {
           <Button
             type="button"
             onClick={handleStructure}
-            disabled={aiLoading || previewLoading}
+            disabled={aiLoading || previewLoading || imagesLoading}
             size="sm"
           >
             {aiLoading ? "Estruturando…" : "Estruturar com IA"}
+          </Button>
+          <Button
+            type="button"
+            onClick={handleGenerateImages}
+            disabled={!aiOutput || aiLoading || imagesLoading}
+            size="sm"
+            variant="outline"
+            title={
+              !aiOutput
+                ? "Estruture a copy primeiro"
+                : "Gera as imagens IA via OpenAI (~$2 em créditos por listicle)"
+            }
+          >
+            {imagesLoading
+              ? `Gerando ${generatedCount}/${totalSlots}…`
+              : "Gerar imagens"}
           </Button>
         </div>
       </header>
